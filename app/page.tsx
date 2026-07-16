@@ -1,9 +1,11 @@
 "use client";
-import { createWorker } from "tesseract.js";
+
 import MonthlyChart from "@/components/MonthlyChart";
 import CategoryChart from "@/components/CategoryChart";
 import ExpenseList from "@/components/ExpenseList";
 import SummaryCards from "@/components/SummaryCards";
+import ReceiptScanner from "@/components/ReceiptScanner";
+import Tesseract, { createWorker } from "tesseract.js";
 import { useEffect, useState } from "react"; // ← useState追加
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -28,7 +30,6 @@ export default function Home() {
   const [category, setCategory] = useState("");
   const [memo, setMemo] = useState("");
   const [date, setDate] = useState("");
-  const [receiptImage, setReceiptImage] = useState<File | null>(null);
   const [ocrLoading, setOcrLoading] = useState(false);
   const [showReceiptConfirm, setShowReceiptConfirm] = useState(false);
   const readReceipt = async () => {
@@ -189,6 +190,7 @@ setShowReceiptConfirm(true);
 
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [receiptImage,setReceiptImage] = useState<File | null>(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(
@@ -577,6 +579,7 @@ hover:bg-red-600
   totalAmount={totalAmount}
   totalCount={totalCount}
 />
+
 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
 
   <div className="
@@ -686,6 +689,9 @@ mb-8
 "
 >
       <h2 className="text-xl font-bold mb-4">支出登録</h2>
+    
+
+
 <label
 className="
 w-full
@@ -785,8 +791,9 @@ py-3
 text-white
 font-bold
 "
-onClick={()=>{
-setShowReceiptConfirm(false);
+onClick={async () => {
+  await addExpense();
+  setShowReceiptConfirm(false);
 }}
 >
 この内容で登録
