@@ -1,150 +1,236 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
-
 export default function LoginPage() {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
-  useEffect(() => {
-  const checkUser = async () => {
-    const { data } = await supabase.auth.getUser();
+  const [isSignup, setIsSignup] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-    if (data.user) {
-      router.replace("/");
+  const handleAuth = async () => {
+    setErrorMessage("");
+
+    if (isSignup) {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) {
+        setErrorMessage(error.message);
+        return;
+      }
+
+      alert("登録しました");
+    } else {
+      const { error } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+      if (error) {
+        setErrorMessage("ログインに失敗しました");
+        return;
+      }
+
+      router.push("/");
     }
   };
 
-  checkUser();
-}, [router]);
-  const signUp = async () => {
-     if (!email || !password) {
-    alert("メールアドレスとパスワードを入力してください");
-    return;
-  }
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-   if (error) {
-  setMessage(error.message);
-} else {
-  setMessage("登録しました。メールを確認してください");
-}
-  };
-
- const signIn = async () => {
-   setLoading(true);
-  setMessage("");
- if (!email || !password) {
-  setMessage("メールアドレスとパスワードを入力してください");
-   setLoading(false);
-  return;
-}
-  if (password.length < 8) {
-  setMessage("パスワードは8文字以上にしてください");
-   setLoading(false);
-  return;
-}
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
- 
-  console.log(error);
-  console.log(data);
-  
-
-  if (error) {
-    setMessage(error.message);
-     setLoading(false);
-  } else {
-    router.push("/"); // ←これ追加（重要）
-  }
-};
-
-
-
 
   return (
-  <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+    <div
+      className="
+        min-h-screen
+        flex
+        items-center
+        justify-center
+        px-4
+        bg-gradient-to-br
+        from-blue-400
+        via-sky-300
+        to-indigo-400
+      "
+    >
 
-    <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
-
-      <h1 className="text-3xl font-bold text-center mb-6">
-        💰 家計簿アプリ
-      </h1>
-
-      <p className="text-gray-500 text-center mb-6">
-        ログインしてください
-      </p>
-{message && (
-  <p className="text-red-500 text-sm mb-4 text-center">
-    {message}
-  </p>
-)}
-
-      <input
-        className="border rounded-lg p-3 w-full mb-4"
-        placeholder="メールアドレス"
-        value={email}
-        onChange={(e) => {
-  setEmail(e.target.value);
-  setMessage("");
-}}
-      />
-
-
-      <div className="relative mb-6">
-
-  <input
-    className="border rounded-lg p-3 w-full pr-12"
-    type={showPassword ? "text" : "password"}
-    placeholder="パスワード"
-    value={password}
-    onChange={(e) => {
-      setPassword(e.target.value);
-      setMessage("");
-    }}
-  />
-
-  <button
-    type="button"
-    onClick={() => setShowPassword(!showPassword)}
-    className="absolute right-3 top-3 text-gray-500"
-  >
-    {showPassword ? "🙈" : "👁"}
-  </button>
-
-</div>
-
-
-      <button
-  onClick={signIn}
-  disabled={loading}
-  className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white w-full py-3 rounded-lg mb-3 transition"
->
-  {loading ? "ログイン中..." : "ログイン"}
-</button>
-
-
-      <button
-        onClick={signUp}
-        className="bg-gray-200 hover:bg-gray-300 text-gray-800 w-full py-3 rounded-lg transition"
+      <div
+        className="
+          w-full
+          max-w-md
+          bg-white/90
+          backdrop-blur
+          rounded-3xl
+          shadow-2xl
+          p-8
+          border
+          border-white/50
+        "
       >
-        新規登録
-      </button>
+
+        <div className="text-center mb-8">
+
+          <div
+            className="
+              mx-auto
+              mb-4
+              flex
+              h-20
+              w-20
+              items-center
+              justify-center
+              rounded-full
+              bg-blue-500
+              text-4xl
+              shadow-lg
+            "
+          >
+            💰
+          </div>
+
+
+          <h1
+            className="
+              text-3xl
+              font-black
+              text-transparent
+              bg-clip-text
+              bg-gradient-to-r
+              from-blue-600
+              to-cyan-400
+            "
+          >
+            青い箱 家計簿
+          </h1>
+
+
+          <p className="mt-2 text-gray-500">
+            あなた専用の支出管理アプリ
+          </p>
+
+        </div>
+
+
+
+        {errorMessage && (
+          <p className="
+            mb-4
+            text-red-500
+            text-sm
+          ">
+            ⚠ {errorMessage}
+          </p>
+        )}
+
+
+
+        <div className="space-y-4">
+
+          <input
+            className="
+              w-full
+              rounded-xl
+              border
+              border-gray-200
+              px-4
+              py-3
+              outline-none
+              focus:border-blue-500
+              focus:ring-4
+              focus:ring-blue-200
+            "
+            placeholder="メールアドレス"
+            value={email}
+            onChange={(e) =>
+              setEmail(e.target.value)
+            }
+          />
+
+
+          <input
+            className="
+              w-full
+              rounded-xl
+              border
+              border-gray-200
+              px-4
+              py-3
+              outline-none
+              focus:border-blue-500
+              focus:ring-4
+              focus:ring-blue-200
+            "
+            type="password"
+            placeholder="パスワード"
+            value={password}
+            onChange={(e) =>
+              setPassword(e.target.value)
+            }
+          />
+
+
+          <button
+            onClick={handleAuth}
+            className="
+              w-full
+              rounded-xl
+              bg-blue-600
+              py-3
+              font-bold
+              text-white
+              shadow-lg
+              transition
+              hover:bg-blue-700
+              hover:-translate-y-1
+              active:scale-95
+            "
+          >
+            {isSignup ? "新規登録" : "ログイン"}
+          </button>
+
+
+          <button
+            onClick={() =>
+              setIsSignup(!isSignup)
+            }
+            className="
+              w-full
+              rounded-xl
+              bg-gray-100
+              py-3
+              font-bold
+              text-gray-700
+              transition
+              hover:bg-gray-200
+            "
+          >
+            {isSignup
+              ? "ログインへ戻る"
+              : "新規登録はこちら"}
+          </button>
+
+        </div>
+
+
+        <p
+          className="
+            mt-8
+            text-center
+            text-xs
+            text-gray-400
+          "
+        >
+          Created by 青い箱
+        </p>
+
+      </div>
 
     </div>
-
-  </div>
-);
+  );
 }
+
