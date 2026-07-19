@@ -174,6 +174,29 @@ export default function LoginPage() {
           />
 
 
+{/* デモアカウント入力 */}
+  <button
+    onClick={() => {
+      setEmail("demo@aoihako.com");
+      setPassword("demo123");
+    }}
+    className="
+      w-full
+      rounded-xl
+      bg-green-500
+      py-3
+      font-bold
+      text-white
+      transition
+      hover:bg-green-600
+    "
+  >
+    デモアカウントを入力
+  </button>
+
+
+
+
           <button
             onClick={handleAuth}
             className="
